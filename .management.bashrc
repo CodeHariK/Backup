@@ -43,11 +43,38 @@ function reload(){
 alias reload="reload"
 
 #Encrypt-----------------------------------------------------------------------------------------------------
-alias dacc="gpg -d"
-alias crab="dacc /Users/Shared/Documents/crab.txt | grep -i "
+
+function crabDecrypt() {
+    cd /Users/Shared/Documents/
+
+    ENCRYPTED_FILE="crab.txt"
+    DECRYPTED_FILE="crab.tmp.txt"
+
+    gpg -d $ENCRYPTED_FILE > $DECRYPTED_FILE
+
+    code "$DECRYPTED_FILE"
+
+    sleep 1
+
+    while lsof | grep -q "$DECRYPTED_FILE"; do
+        sleep 1
+    done
+
+    crabEncrypt $DECRYPTED_FILE
+
+    rm $DECRYPTED_FILE
+}
+alias crabDecrypt="crabDecrypt"
+
+alias crabFetch="gpg -d /Users/Shared/Documents/crab.txt | grep -i "
+
+alias crabFly="pbpaste | gpg -d | grep -i"
+
 gpg-agent --default-cache-ttl 30
 
-function encc() {
+function crabEncrypt() {
+    cd /Users/Shared/Documents/
+
     local file_path="$1"
 
     # Check if file path is provided
@@ -79,7 +106,7 @@ function encc() {
         echo "Encryption failed"
     fi
 }
-alias encc="encc"
+alias crabEncrypt="crabEncrypt"
 
 #Process-------------------------------------------------------------
 alias proc="ps -aux"
