@@ -48,10 +48,6 @@ alias a5="adb tcpip 5555"
 alias aaa="a5 && adbcon"
 
 #Code Analysis-----------------------------------------------------------------------------
-alias css="scc -i c,cpp,swift,h,dart,ts,s,c++,cs,java,go,py,rs,jl,js"
-alias cs="scc -c"
-alias csb="scc --by-file -c"
-
 function list_directories_recursive() {
     if [ -z "$1" ]; then
         echo "Usage: list_directories_recursive <directory> [maxdepth]"
@@ -95,8 +91,11 @@ function run_command_on_directories() {
 
 alias run_command_on_directories='run_command_on_directories'
 alias list_directories_recursive='list_directories_recursive'
-alias csd='run_command_on_directories scc . 1'
-alias csdd='run_command_on_directories scc .'
+
+alias tok="tokei"
+alias tokl="tokei -f"
+alias toki='run_command_on_directories tokei . 1'
+alias toker='run_command_on_directories tokei .'
 
 hello(){
 	read -p "Are you sure? " -n 1 -r
