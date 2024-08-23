@@ -44,7 +44,7 @@ alias reload="reload"
 
 #Encrypt-----------------------------------------------------------------------------------------------------
 
-function crabDecrypt() {
+function crabUpdate {
     cd /Users/Shared/Documents/
 
     ENCRYPTED_FILE="crab.txt"
@@ -64,7 +64,7 @@ function crabDecrypt() {
 
     rm $DECRYPTED_FILE
 }
-alias crabDecrypt="crabDecrypt"
+alias crabUpdate="crabUpdate"
 
 alias crabFetch="gpg -d /Users/Shared/Documents/crab.txt | grep -i "
 

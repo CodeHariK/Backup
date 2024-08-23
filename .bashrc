@@ -145,6 +145,8 @@ path_cargo='$HOME/.cargo/bin'
 path_pub='$HOME/.pub-cache/bin'
 path_go='/Users/shark/go/bin'
 
+. /opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh
+
 export EDITOR=$(which code)
 
 export GOPATH=/Users/shark/go
