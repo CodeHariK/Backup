@@ -1,16 +1,3 @@
-####----------------------------------------------------------------------------
-code="/mnt/e/niagara"
-alias cdoc="http-server -s $code"
-alias proj="cd $code"
-# doxyfile=$(wslpath -w $code/Doxy/Doxyfile)
-alias doxygen="$code/Doxy/doxygen.exe"
-doc() {
-	cd $code;
-	doxygen $doxyfile;
-	cp $code/Doxy/search.css $code/Docs/html/search
-}
-alias doc=doc
-
 #Firebase---------------------------------------------------------------------------------
 alias femu='firebase emulators:start'
 alias tbw="(cd functions && npm run build:watch)"

@@ -66,6 +66,7 @@ function crabUpdate {
 }
 alias crabUpdate="crabUpdate"
 
+alias crabDecrypt="gpg -d /Users/Shared/Documents/crab.txt"
 alias crabFetch="gpg -d /Users/Shared/Documents/crab.txt | grep -i "
 
 alias crabFly="pbpaste | gpg -d | grep -i"
@@ -73,13 +74,13 @@ alias crabFly="pbpaste | gpg -d | grep -i"
 gpg-agent --default-cache-ttl 30
 
 function crabEncrypt() {
-    cd /Users/Shared/Documents/
+    cd /Users/Shared/Documents/ || return 1
 
     local file_path="$1"
 
     # Check if file path is provided
     if [ -z "$file_path" ]; then
-        echo "Usage: encrypt_file_with_gpg <file_path>"
+        echo "Usage: crabEncrypt <file_path>"
         return 1
     fi
 
@@ -89,22 +90,32 @@ function crabEncrypt() {
         return 1
     fi
 
+    local temp_encrypted="temp_encrypted.gpg"
+
+    # Encrypt the file
+    gpg -cav --compress-algo=bzip2 --cipher-algo=AES256 -o "$temp_encrypted" "$file_path"
+    
+    if [ $? -ne 0 ]; then
+        echo "Encryption failed"
+        return 1
+    fi
+
+    # Compute MD5 hash of the encrypted file
     local md5_hash
-    md5_hash=$(md5 -q "$file_path") 
+    md5_hash=$(md5 -q "$temp_encrypted")
 
     local current_date
     current_date=$(date +"%Y%m%d")
 
-    local new_filename="${current_date}_${md5_hash}.txt"
+    local new_filename="${current_date}_${md5_hash}.gpg"
 
-    gpg -cav --compress-algo=bzip2 --cipher-algo=AES256 -o "$new_filename" "$file_path"
+    # Rename the encrypted file
+    mv "$temp_encrypted" "$new_filename"
+    
+    # Copy the new encrypted file to "crab.txt"
     cp "$new_filename" "crab.txt"
 
-    if [ $? -eq 0 ]; then
-        echo "File encrypted successfully: $new_filename"
-    else
-        echo "Encryption failed"
-    fi
+    echo "File encrypted successfully: $new_filename"
 }
 alias crabEncrypt="crabEncrypt"
 

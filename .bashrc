@@ -137,24 +137,18 @@ export NVM_DIR="$HOME/.nvm"
 
 ####--------------------------------------------------------
 
-# path_local='/usr/local/bin'
-# path_bash='/opt/homebrew/bin/bash'
-# path_brew='/opt/homebrew/bin/brew'
-path_flutter='/Applications/flutter/bin'
-path_cargo='$HOME/.cargo/bin'
-path_pub='$HOME/.pub-cache/bin'
-path_go='/Users/shark/go/bin'
-
-. /opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh
-
 export EDITOR=$(which code)
 
-export GOPATH=/Users/shark/go
-export PATH="$PATH:$path_flutter:$path_cargo:$path_pub:$path_go"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH=$BUN_INSTALL/bin:$PATH
+FLUTTER='/Applications/flutter/bin/'
+PUB='$HOME/.pub-cache/bin/'
+export GOBIN="/Users/shark/.asdf/installs/golang/1.24.0/go/bin"
+export BUN_INSTALL="$HOME/.bun/bin"
+export ASDFPATH='$HOME/.asdf/shims'
+export RYEPATH="$HOME/.rye/env"
+export RUSTPATH="/Users/shark/.rustup/toolchains/stable-aarch64-apple-darwin/bin"
+export ANDROID_HOME=~/Library/Android/sdk
+export NDK_HOME=$ANDROID_HOME/ndk/29.0.13113456
+export PATH=$PATH:$FLUTTER:$PUB:$GOBIN:$BUN_INSTALL:$RYEPATH:$ASDFPATH:$RUSTPATH:$NDK_HOME:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
 
 function psupdate(){
     if git status &>/dev/null; then
