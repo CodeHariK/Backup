@@ -139,16 +139,23 @@ export NVM_DIR="$HOME/.nvm"
 
 export EDITOR=$(which code)
 
-FLUTTER='/Applications/flutter/bin/'
-PUB='$HOME/.pub-cache/bin/'
 export GOBIN="/Users/shark/.asdf/installs/golang/1.24.0/go/bin"
 export BUN_INSTALL="$HOME/.bun/bin"
 export ASDFPATH='$HOME/.asdf/shims'
 export RYEPATH="$HOME/.rye/env"
-export RUSTPATH="/Users/shark/.rustup/toolchains/stable-aarch64-apple-darwin/bin"
-export ANDROID_HOME=~/Library/Android/sdk
-export NDK_HOME=$ANDROID_HOME/ndk/29.0.13113456
-export PATH=$PATH:$FLUTTER:$PUB:$GOBIN:$BUN_INSTALL:$RYEPATH:$ASDFPATH:$RUSTPATH:$NDK_HOME:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
+
+export ASDF_DATA_DIR="/Users/Shared/asdf-cache"
+export PUB_CACHE="/Users/Shared/flutter-cache"
+
+export ANDROID_HOME=/Users/Shared/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+export PATH=$PATH:$ANDROID_HOME/ndk/29.0.13113456
+
+export PATH="/opt/homebrew/bin:$PATH"
+
+export PATH=$PATH:$GOBIN:$BUN_INSTALL:$RYEPATH:$ASDFPATH
 
 function psupdate(){
     if git status &>/dev/null; then

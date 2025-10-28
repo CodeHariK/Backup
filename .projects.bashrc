@@ -15,7 +15,10 @@ alias drmv='docker volume rm $(docker volume ls -q)'
 alias dcu="docker-compose up --build"
 
 #Flutter & Deno & Node-----------------------------------------------------------------------------------
-alias flwb="dart run build_runner watch --delete-conflicting-outputs"
+
+alias sdkm='sdkmanager --sdk_root=$ANDROID_HOME'
+
+alias dartbr="dart run build_runner watch --delete-conflicting-outputs"
 alias splash="dart run flutter_native_splash:create"
 alias licon="dart run flutter_launcher_icons"
 
