@@ -129,8 +129,6 @@ source ~/.management.bashrc
 
 clear
 
-#~/donut
-
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -139,7 +137,10 @@ export NVM_DIR="$HOME/.nvm"
 
 export EDITOR=$(which code)
 
+export GOPATH="/Users/Shared/go-cache"
+export GOCACHE="/Users/Shared/go-build-cache"
 export GOBIN="/Users/shark/.asdf/installs/golang/1.24.0/go/bin"
+
 export BUN_INSTALL="$HOME/.bun/bin"
 export ASDFPATH='$HOME/.asdf/shims'
 export RYEPATH="$HOME/.rye/env"
@@ -152,6 +153,9 @@ export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 export PATH=$PATH:$ANDROID_HOME/ndk/29.0.13113456
+
+export GRADLE_USER_HOME="/Users/Shared/gradle-cache"
+export ANDROID_AVD_HOME="/Users/Shared/android-avd-cache"
 
 export PATH="/opt/homebrew/bin:$PATH"
 
