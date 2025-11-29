@@ -113,21 +113,7 @@ fi
 #export DISPLAY=:0.0
 #export LIBGL_ALWAYS_INDIRECT=1o
 
-mkdir /Users/Shared/Backup
-tmpbackup(){
-	cp ~/.bashrc /Users/Shared/Backup
-	cp ~/.management.bashrc /Users/Shared/Backup
-	cp ~/.projects.bashrc /Users/Shared/Backup
-}
-alias tmpbackup="tmpbackup"
-
-
 ####--------------------------------------------------------
-
-source ~/.projects.bashrc
-source ~/.management.bashrc
-
-clear
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -135,17 +121,18 @@ export NVM_DIR="$HOME/.nvm"
 
 ####--------------------------------------------------------
 
-export EDITOR=$(which code)
-
 export GOPATH="/Users/Shared/go-cache"
 export GOCACHE="/Users/Shared/go-build-cache"
-export GOBIN="/Users/shark/.asdf/installs/golang/1.24.0/go/bin"
+export GOBIN="$GOPATH/bin"
 
-export BUN_INSTALL="$HOME/.bun/bin"
-export ASDFPATH='$HOME/.asdf/shims'
-export RYEPATH="$HOME/.rye/env"
+export BUN_INSTALL="/Users/Shared/.bun/bin"
+export ASDFPATH='/Users/Shared/.asdf/shims'
+export RYEPATH="/Users/Shared/.rye/env"
 
 export ASDF_DATA_DIR="/Users/Shared/asdf-cache"
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+. <(asdf completion bash)
+
 export PUB_CACHE="/Users/Shared/flutter-cache"
 
 export ANDROID_HOME=/Users/Shared/Android/sdk
@@ -161,15 +148,269 @@ export PATH="/opt/homebrew/bin:$PATH"
 
 export PATH=$PATH:$GOBIN:$BUN_INSTALL:$RYEPATH:$ASDFPATH
 
+
+
+#Management-----------------------------------------------------------------------------------------------------
+
+alias lol='ls -alshFUAL'
+alias lor='ls -alshFUARL'
+alias sss='history | grep'
+
+alias ip='ifconfig | grep 192'
+
+alias dtp="cd /mnt/c/Users/Hari/Desktop"
+
+alias fsizes="du -hsc * | sort -h" #List all files
+alias fsize="du -hsc *"
+
+alias se="du -ha . | grep -i"
+alias grs="grep -ri" #Recursive String Search
+
+alias tx="tar -xf"
+
+alias lib="cd /mnt/e/files/Library"
+alias sl="du -ha /mnt/e/files/Library | grep -i"
+
+alias n3="nano -l --tabsize=3"
+
+alias cpByName="echo find . -name "'*Name*'" -exec cp {} ../Name \;"
+
+alias treevideo="tree -vJH . > content.html"
+
+#Bashrc-----------------------------------------------------------------------------------------------------
+
+tmpbackup(){
+	mkdir -p /Users/Shared/Backup
+	cp ~/.bashrc /Users/Shared/Backup
+}
+alias tmpbackup="tmpbackup"
+
+tmpload(){
+	if [ -f /Users/Shared/Backup/.bashrc ]; then
+		cp /Users/Shared/Backup/.bashrc ~/.bashrc
+	fi
+	source ~/.bashrc
+}
+alias tmpload="tmpload"
+
+alias reload="source ~/.bashrc"
+
+#Encrypt-----------------------------------------------------------------------------------------------------
+
+function crabUpdate {
+    cd /Users/Shared/Documents/
+
+    ENCRYPTED_FILE="crab.txt"
+    DECRYPTED_FILE="crab.tmp.txt"
+
+    gpg -d $ENCRYPTED_FILE > $DECRYPTED_FILE
+
+    cursor "$DECRYPTED_FILE"
+
+    sleep 1
+
+    while lsof | grep -q "$DECRYPTED_FILE"; do
+        sleep 1
+    done
+
+    crabEncrypt $DECRYPTED_FILE
+
+    rm $DECRYPTED_FILE
+}
+alias crabUpdate="crabUpdate"
+
+alias crabDecrypt="gpg -d /Users/Shared/Documents/crab.txt"
+alias crabFetch="gpg -d /Users/Shared/Documents/crab.txt | grep -i "
+
+alias crabFly="pbpaste | gpg -d | grep -i"
+
+gpg-agent --default-cache-ttl 30
+
+function crabEncrypt() {
+    cd /Users/Shared/Documents/ || return 1
+
+    local file_path="$1"
+
+    # Check if file path is provided
+    if [ -z "$file_path" ]; then
+        echo "Usage: crabEncrypt <file_path>"
+        return 1
+    fi
+
+    # Check if file exists
+    if [ ! -f "$file_path" ]; then
+        echo "File not found: $file_path"
+        return 1
+    fi
+
+    local temp_encrypted="temp_encrypted.gpg"
+
+    # Encrypt the file
+    gpg -cav --compress-algo=bzip2 --cipher-algo=AES256 -o "$temp_encrypted" "$file_path"
+    
+    if [ $? -ne 0 ]; then
+        echo "Encryption failed"
+        return 1
+    fi
+
+    # Compute MD5 hash of the encrypted file
+    local md5_hash
+    md5_hash=$(md5 -q "$temp_encrypted")
+
+    local current_date
+    current_date=$(date +"%Y%m%d")
+
+    local new_filename="${current_date}_${md5_hash}.gpg"
+
+    # Rename the encrypted file
+    mv "$temp_encrypted" "$new_filename"
+    
+    # Copy the new encrypted file to "crab.txt"
+    cp "$new_filename" "crab.txt"
+
+    echo "File encrypted successfully: $new_filename"
+}
+alias crabEncrypt="crabEncrypt"
+
+#Process-------------------------------------------------------------
+alias proc="ps -aux"
+alias kil="kill %%"
+
+alias killport="lsof -ti:\$1 | xargs kill -9"
+
+#Shared
+alias shared777="sudo chmod -R 777 /Users/Shared/"
+
+#Git-----------------------------------------------------------------
+alias gitstatus='(git diff --numstat | awk '\''{total=$1+$2; printf "%6d %6d %6d %s\n", total, $1, $2, $3}'\''; git status --porcelain --untracked-files=all | grep '\''^??'\'' | awk '\''{printf "%6d U %s\n", 999999, $2}'\'') | sort -rn | awk '\''{if ($2 == "U") printf "      U %s\n", $3; else printf "%6d+ %6d- %s\n", $2, $3, $4}'\'''
+
+#Firebase---------------------------------------------------------------------------------
+alias femu='firebase emulators:start'
+alias tbw="(cd functions && npm run build:watch)"
+alias bufgen="buf dep update && buf lint && buf generate --include-imports --include-wkt"
+
+#Docker-----------------------------------------------------------------------------------
+alias drmi='docker image rm $(docker image ls -aq)'
+alias drmc='docker container rm -f $(docker container ps -aq)'
+alias drmv='docker volume rm $(docker volume ls -q)'
+
+alias dcu="docker-compose up --build"
+
+#Flutter & Deno & Node-----------------------------------------------------------------------------------
+
+alias sdkm='sdkmanager --sdk_root=$ANDROID_HOME'
+
+alias dartbr="dart run build_runner watch --delete-conflicting-outputs"
+alias splash="dart run flutter_native_splash:create"
+alias licon="dart run flutter_launcher_icons"
+
+function adbcon() {
+    # addr=`adb.exe shell netcfg | grep rmnet0 | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'`
+    addr=`adb shell ip addr | grep inet | grep wlan0 | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | grep -m 1 192`
+    echo $addr &&
+    adb connect $addr:5555 &&
+	adb devices -l
+}
+
+alias adb="/Applications/adb"
+alias adbcon="adbcon"
+alias adev="adb devices"
+alias akill="adb kill-server"
+alias a5="adb tcpip 5555"
+alias aaa="a5 && adbcon"
+
+alias gbuild="./gradlew build"
+alias ginstall="./gradlew installDebug"
+alias gclean="./gradlew clean"
+
+#Ios----------------------------------------------------------------------------------------
+
+alias ipod="cd ios && rm -rf Pods Podfile.lock && pod deintegrate && pod install && cd .."
+
+alias ilist="xcodebuild -list"
+
+alias idevices="xcrun simctl list devices"
+alias idevicetypes="xcrun simctl list devicetypes"
+alias ishutdown="xcrun simctl shutdown iPhone_17_Pro"
+alias ierase="xcrun simctl erase iPhone_17_Pro"
+alias idelete="xcrun simctl delete iPhone_17_Pro"
+
+alias icreate="xcrun simctl create iPhone_17_Pro iPhone 17 Pro"
+alias iboot="xcrun simctl boot iPhone_17_Pro"
+
+alias ibuild="xcodebuild -scheme swiftales -destination 'platform=iOS Simulator,name=iPhone_17_Pro' build"
+
+alias imac="xcodebuild -scheme swiftales -destination 'platform=macOS' build"
+
+alias iinstall="xcrun simctl install 'iPhone_17_Pro' '/Users/a24/Library/Developer/Xcode/DerivedData/swiftales-dfblcdpqkauavvayuxpfokhuykaf/Build/Products/Debug-iphonesimulator/swiftales.app'"
+
+alias ilaunch="xcrun simctl launch 'iPhone_17_Pro' run.shark.swiftales"
+
+#Code Analysis-----------------------------------------------------------------------------
+function list_directories_recursive() {
+    if [ -z "$1" ]; then
+        echo "Usage: list_directories_recursive <directory> [maxdepth]"
+        return 1
+    fi
+
+    local target_directory="$1"
+    local maxdepth="$2"
+    local maxdepth_option=""
+
+    if [ -n "$maxdepth" ]; then
+        maxdepth_option="-maxdepth $maxdepth"
+    fi
+
+    # Use find command to list directories recursively
+    find "$target_directory" $maxdepth_option -type d -print
+}
+
+function run_command_on_directories() {
+    local command_to_run="$1"
+    local target_directory="$2"
+    local maxdepth="$3"
+
+    # List directories recursively
+    local directories=($(list_directories_recursive "$target_directory" "$maxdepth"))
+
+    # Run command on each directory
+    for dir in "${directories[@]}"; do
+        echo "Running command on directory: $dir"
+        # Add your command here using $dir as the directory variable
+        # Example: 
+        # Your command might look like: `echo "Processing files in $dir"`
+        # Replace the above example with the actual command you want to run
+        $command_to_run "$dir"
+        result=$?
+        if [ $result -ne 0 ]; then
+            echo "Command failed for directory: $dir (Exit Code: $result)"
+        fi
+    done
+}
+
+alias run_command_on_directories='run_command_on_directories'
+alias list_directories_recursive='list_directories_recursive'
+
+alias tok="tokei"
+alias tokl="tokei -f"
+alias toki='run_command_on_directories tokei . 1'
+alias toker='run_command_on_directories tokei .'
+
+
+# Update PS1-----------------------------------------------------------------------------
 function psupdate(){
-    if git status &>/dev/null; then
+    # Check if we're in a git repository without throwing errors
+    if git rev-parse --git-dir &>/dev/null; then
         uptodate="💔"
-        if [ $(git rev-parse HEAD) == $(git rev-parse @{u}) ]; then
-            uptodate="🦋"
+        # Check if upstream exists and compare with HEAD
+        if git rev-parse @{u} &>/dev/null 2>&1; then
+            if [ "$(git rev-parse HEAD 2>/dev/null)" == "$(git rev-parse @{u} 2>/dev/null)" ]; then
+                uptodate="🦋"
+            fi
         fi
         branch=$(git branch 2>/dev/null | grep '^*' | colrm 1 2)
-        modified=$(git diff --shortstat | awk '{print $1" +"$4" -"$6""}')
-        untracked=$(git ls-files --others --exclude-standard | wc -l | xargs)
+        modified=$(git diff --shortstat 2>/dev/null | awk '{print $1" +"$4" -"$6""}')
+        untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | xargs)
 
         export PS1="\n${Blue}\W ${Yellow}$branch ${Pink}$modified *$untracked $uptodate ${Reset}"
     else

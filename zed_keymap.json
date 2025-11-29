@@ -1,0 +1,124 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      // "shift shift": "file_finder::Toggle"
+    }
+  },
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {
+      // "j k": "vim::NormalBefore"
+    }
+  },
+
+  //-----
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-i": "editor::MoveUp"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-k": "editor::MoveDown"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-j": "editor::MoveLeft"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-l": "editor::MoveRight"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-o": "editor::MoveToNextWordEnd"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-u": "editor::MoveToPreviousWordStart"
+    }
+  },
+
+  //-----
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-i": "editor::SelectUp"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-k": "editor::SelectDown"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-l": "editor::SelectRight"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-j": "editor::SelectLeft"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-o": "editor::SelectToNextWordEnd"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-u": "editor::SelectToPreviousWordStart"
+    }
+  },
+
+  //-----
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-x": "editor::Backspace"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-c": "editor::Delete"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-d": "editor::DeleteLine"
+    }
+  },
+
+  //-----
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-- ctrl--": "theme_selector::Toggle"
+    }
+  }
+]
