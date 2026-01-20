@@ -126,12 +126,8 @@ export GOCACHE="/Users/Shared/go-build-cache"
 export GOBIN="$GOPATH/bin"
 
 export BUN_INSTALL="/Users/Shared/.bun/bin"
-export ASDFPATH='/Users/Shared/.asdf/shims'
-export RYEPATH="/Users/Shared/.rye/env"
 
-export ASDF_DATA_DIR="/Users/Shared/asdf-cache"
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
-. <(asdf completion bash)
+export UV_CACHE_DIR="/Users/Shared/uv-cache"
 
 export PUB_CACHE="/Users/Shared/flutter-cache"
 
@@ -146,8 +142,7 @@ export ANDROID_AVD_HOME="/Users/Shared/android-avd-cache"
 
 export PATH="/opt/homebrew/bin:$PATH"
 
-export PATH=$PATH:$GOBIN:$BUN_INSTALL:$RYEPATH:$ASDFPATH
-
+export PATH=$PATH:$GOBIN:$BUN_INSTALL:$UV_CACHE_DIR
 
 
 #Management-----------------------------------------------------------------------------------------------------
@@ -280,6 +275,7 @@ alias killport="lsof -ti:\$1 | xargs kill -9"
 
 #Shared
 alias shared777="sudo chmod -R 777 /Users/Shared/"
+alias brewown="sudo chown -R $(whoami):admin /opt/homebrew"
 
 #Git-----------------------------------------------------------------
 alias gitstatus='(git diff --numstat | awk '\''{total=$1+$2; printf "%6d %6d %6d %s\n", total, $1, $2, $3}'\''; git status --porcelain --untracked-files=all | grep '\''^??'\'' | awk '\''{printf "%6d U %s\n", 999999, $2}'\'') | sort -rn | awk '\''{if ($2 == "U") printf "      U %s\n", $3; else printf "%6d+ %6d- %s\n", $2, $3, $4}'\'''
