@@ -56,6 +56,28 @@
       "ctrl-u": "editor::MoveToPreviousWordStart"
     }
   },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-m": [
+        "editor::MoveDownByLines",
+        {
+          "lines": 8
+        }
+      ]
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-n": [
+        "editor::MoveUpByLines",
+        {
+          "lines": 8
+        }
+      ]
+    }
+  },
 
   //-----
   {

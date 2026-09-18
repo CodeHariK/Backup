@@ -115,12 +115,6 @@ fi
 
 ####--------------------------------------------------------
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-####--------------------------------------------------------
-
 export GOPATH="/Users/Shared/go-cache"
 export GOCACHE="/Users/Shared/go-build-cache"
 export GOBIN="$GOPATH/bin"
@@ -131,7 +125,12 @@ export UV_CACHE_DIR="/Users/Shared/uv-cache"
 
 export PUB_CACHE="/Users/Shared/flutter-cache"
 
-export ANDROID_HOME=/Users/Shared/Android/sdk
+export FLUTTER_HOME="/Users/Shared/flutter"
+export PATH="$PATH:$FLUTTER_HOME/bin"
+
+export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+
+export ANDROID_HOME=/Users/Shared/Android
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
@@ -142,7 +141,7 @@ export ANDROID_AVD_HOME="/Users/Shared/android-avd-cache"
 
 export PATH="/opt/homebrew/bin:$PATH"
 
-export PATH=$PATH:$GOBIN:$BUN_INSTALL:$UV_CACHE_DIR
+export PATH=$PATH:$GOBIN:$BUN_INSTALL:$UV_CACHE_DIR:$JAVA_HOME/bin
 
 
 #Management-----------------------------------------------------------------------------------------------------
@@ -242,7 +241,7 @@ function crabEncrypt() {
 
     # Encrypt the file
     gpg -cav --compress-algo=bzip2 --cipher-algo=AES256 -o "$temp_encrypted" "$file_path"
-    
+
     if [ $? -ne 0 ]; then
         echo "Encryption failed"
         return 1
@@ -259,7 +258,7 @@ function crabEncrypt() {
 
     # Rename the encrypted file
     mv "$temp_encrypted" "$new_filename"
-    
+
     # Copy the new encrypted file to "crab.txt"
     cp "$new_filename" "crab.txt"
 
@@ -271,14 +270,28 @@ alias crabEncrypt="crabEncrypt"
 alias proc="ps -aux"
 alias kil="kill %%"
 
-alias killport="lsof -ti:\$1 | xargs kill -9"
+function killport() {
+    local port="$1"
+    if [ -z "$port" ]; then
+        echo "Usage: killport <port>"
+        return 1
+    fi
+    # Use -ti :port for broad compatibility
+    local pid=$(lsof -ti :"$port")
+    if [ -n "$pid" ]; then
+        echo "Killing process(es) $pid on port $port"
+        echo "$pid" | xargs kill -9
+    else
+        echo "Nothing found listening on port $port"
+    fi
+}
 
 #Shared
-alias shared777="sudo chmod -R 777 /Users/Shared/"
+alias ownfolder="sudo chown -R $(whoami):staff ."
 alias brewown="sudo chown -R $(whoami):admin /opt/homebrew"
 
 #Git-----------------------------------------------------------------
-alias gitstatus='(git diff --numstat | awk '\''{total=$1+$2; printf "%6d %6d %6d %s\n", total, $1, $2, $3}'\''; git status --porcelain --untracked-files=all | grep '\''^??'\'' | awk '\''{printf "%6d U %s\n", 999999, $2}'\'') | sort -rn | awk '\''{if ($2 == "U") printf "      U %s\n", $3; else printf "%6d+ %6d- %s\n", $2, $3, $4}'\'''
+alias gitstatus='repo_root=$(git rev-parse --show-toplevel 2>/dev/null); (git diff --numstat 2>/dev/null; git status --porcelain --untracked-files=all 2>/dev/null | grep '\''^??'\'' | while read -r line; do file="${line#?? }"; lines=$(wc -l < "$repo_root/$file" 2>/dev/null | xargs); echo "$lines 0 $file"; done) | awk '\''{total=$1+$2; printf "%6d %6d %6d %s\n", total, $1, $2, $3}'\'' | sort -rn | awk '\''{printf "%6d+ %6d- %s\n", $2, $3, $4}'\'''
 
 #Firebase---------------------------------------------------------------------------------
 alias femu='firebase emulators:start'
@@ -308,8 +321,6 @@ function adbcon() {
 	adb devices -l
 }
 
-alias adb="/Applications/adb"
-alias adbcon="adbcon"
 alias adev="adb devices"
 alias akill="adb kill-server"
 alias a5="adb tcpip 5555"
@@ -373,7 +384,7 @@ function run_command_on_directories() {
     for dir in "${directories[@]}"; do
         echo "Running command on directory: $dir"
         # Add your command here using $dir as the directory variable
-        # Example: 
+        # Example:
         # Your command might look like: `echo "Processing files in $dir"`
         # Replace the above example with the actual command you want to run
         $command_to_run "$dir"
@@ -388,7 +399,7 @@ alias run_command_on_directories='run_command_on_directories'
 alias list_directories_recursive='list_directories_recursive'
 
 alias tok="tokei"
-alias tokl="tokei -f"
+alias tokl="tokei -s code -f"
 alias toki='run_command_on_directories tokei . 1'
 alias toker='run_command_on_directories tokei .'
 
@@ -413,4 +424,5 @@ function psupdate(){
         export PS1="\n${Blue}🐌 \W 🦢 ${Reset}"
     fi
 }
-trap psupdate DEBUG
+# Update PS1 using PROMPT_COMMAND (safer than trap DEBUG)
+PROMPT_COMMAND=psupdate
