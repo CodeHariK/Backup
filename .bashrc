@@ -123,10 +123,7 @@ export BUN_INSTALL="/Users/Shared/.bun/bin"
 
 export UV_CACHE_DIR="/Users/Shared/uv-cache"
 
-export PUB_CACHE="/Users/Shared/flutter-cache"
-
-export FLUTTER_HOME="/Users/Shared/flutter"
-export PATH="$PATH:$FLUTTER_HOME/bin"
+export PATH="$PATH:/Users/Shared/flutter/bin:/Users/Shared/flutter-cache/bin"
 
 export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
 
