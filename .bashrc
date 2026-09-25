@@ -423,3 +423,13 @@ function psupdate(){
 }
 # Update PS1 using PROMPT_COMMAND (safer than trap DEBUG)
 PROMPT_COMMAND=psupdate
+
+# --- git identity / remote summary for the CURRENT repo ---
+gitwho() {
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "Not inside a git repository."; return 1; }
+  printf "name   : %s\n" "$(git config user.name)"
+  printf "email  : %s\n" "$(git config user.email)"
+  printf "sshkey : %s\n" "$(git config --get core.sshCommand)"
+  echo   "remote :"
+  git remote -v | sed "s/^/         /"
+}
