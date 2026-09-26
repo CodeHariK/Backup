@@ -83,13 +83,10 @@ Pink='\[\033[38;5;210m\]'
 Yellow='\[\033[38;5;11m\]'
 Green='\[\033[38;5;76m\]'
 Reset='\[$(tput sgr0)\]'
-if [ "$color_prompt" = yes ]; then
-	#PS1="\n${PurpleBack} 🍕 \w 👻 ${Reset} "
-	#PS1="\n${PurpleBack} 👻 -> 🍕 ${Reset} "
-	PS1="\n${Blue}🐌 \W ${Yellow}$(git branch 2>/dev/null | grep '^*' | colrm 1 2) ${Pink}$(git commit | grep modified | wc -l | xargs),$(git ls-files --others --exclude-standard | wc -l | xargs) 🦢 ${Reset}"
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
+# PS1 is set on every prompt by psupdate() via PROMPT_COMMAND (see bottom of
+# file), so no static PS1 is assigned here. (The old block ran `git commit` in a
+# command substitution at shell startup — a hang/commit hazard — and was dead
+# code anyway since PROMPT_COMMAND overwrites PS1 before the first prompt.)
 unset color_prompt force_color_prompt
 
 # enable color support of ls and also add handy aliases
@@ -108,77 +105,59 @@ fi
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 ####--------------------------------------------------------
-#eval "$(dircolors ~/.dircolors)"
-
-#export DISPLAY=:0.0
-#export LIBGL_ALWAYS_INDIRECT=1o
-
-####--------------------------------------------------------
 
 export GOPATH="/Users/Shared/go-cache"
 export GOCACHE="/Users/Shared/go-build-cache"
 export GOBIN="$GOPATH/bin"
 
-export BUN_INSTALL="/Users/Shared/.bun/bin"
+export BUN_INSTALL="/Users/Shared/.bun"
 
 export UV_CACHE_DIR="/Users/Shared/uv-cache"
 
+# Node / CocoaPods / Homebrew caches consolidated under /Users/Shared
+export npm_config_cache="/Users/Shared/npm-cache"
+export CP_HOME_DIR="/Users/Shared/cocoapods"
+export HOMEBREW_CACHE="/Users/Shared/homebrew-cache"
+
 export PATH="$PATH:/Users/Shared/flutter/bin:/Users/Shared/flutter-cache/bin"
+export PUB_CACHE="/Users/Shared/flutter-cache"
 
-export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null)"
 
-export ANDROID_HOME=/Users/Shared/Android
+export ANDROID_HOME=/Users/Shared/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-export PATH=$PATH:$ANDROID_HOME/ndk/29.0.13113456
+export PATH=$PATH:$ANDROID_HOME/ndk/28.2.13676358
 
 export GRADLE_USER_HOME="/Users/Shared/gradle-cache"
 export ANDROID_AVD_HOME="/Users/Shared/android-avd-cache"
 
 export PATH="/opt/homebrew/bin:$PATH"
 
-export PATH=$PATH:$GOBIN:$BUN_INSTALL:$UV_CACHE_DIR:$JAVA_HOME/bin
+export PATH="$PATH:$GOBIN:$BUN_INSTALL/bin:$JAVA_HOME/bin"
 
+# De-duplicate PATH (keep first occurrence) so re-sourcing this file doesn't
+# keep appending the same entries and bloating PATH.
+PATH="$(printf '%s' "$PATH" | awk -v RS=: -v ORS=: '!seen[$0]++' | sed 's/:$//')"
+export PATH
 
 #Management-----------------------------------------------------------------------------------------------------
 
 alias lol='ls -alshFUAL'
-alias lor='ls -alshFUARL'
 alias sss='history | grep'
-
-alias ip='ifconfig | grep 192'
-
-alias dtp="cd /mnt/c/Users/Hari/Desktop"
-
-alias fsizes="du -hsc * | sort -h" #List all files
-alias fsize="du -hsc *"
-
-alias se="du -ha . | grep -i"
-alias grs="grep -ri" #Recursive String Search
-
-alias tx="tar -xf"
-
-alias lib="cd /mnt/e/files/Library"
-alias sl="du -ha /mnt/e/files/Library | grep -i"
-
-alias n3="nano -l --tabsize=3"
-
-alias cpByName="echo find . -name "'*Name*'" -exec cp {} ../Name \;"
-
-alias treevideo="tree -vJH . > content.html"
 
 #Bashrc-----------------------------------------------------------------------------------------------------
 
 tmpbackup(){
-	mkdir -p /Users/Shared/Backup
-	cp ~/.bashrc /Users/Shared/Backup
+	mkdir -p /Users/Shared/Code/Backup
+	cp ~/.bashrc /Users/Shared/Code/Backup
 }
 alias tmpbackup="tmpbackup"
 
 tmpload(){
-	if [ -f /Users/Shared/Backup/.bashrc ]; then
-		cp /Users/Shared/Backup/.bashrc ~/.bashrc
+	if [ -f /Users/Shared/Code/Backup/.bashrc ]; then
+		cp /Users/Shared/Code/Backup/.bashrc ~/.bashrc
 	fi
 	source ~/.bashrc
 }
@@ -200,13 +179,13 @@ function crabUpdate {
 
     sleep 1
 
-    while lsof | grep -q "$DECRYPTED_FILE"; do
+    while lsof "$DECRYPTED_FILE" >/dev/null 2>&1; do
         sleep 1
     done
 
-    crabEncrypt $DECRYPTED_FILE
+    crabEncrypt "$DECRYPTED_FILE"
 
-    rm $DECRYPTED_FILE
+    rm -P "$DECRYPTED_FILE"
 }
 alias crabUpdate="crabUpdate"
 
@@ -215,7 +194,8 @@ alias crabFetch="gpg -d /Users/Shared/Documents/crab.txt | grep -i "
 
 alias crabFly="pbpaste | gpg -d | grep -i"
 
-gpg-agent --default-cache-ttl 30
+# gpg-agent cache TTL is set in ~/.gnupg/gpg-agent.conf (default-cache-ttl 1800).
+# It launches on demand, so there's no need to start it from .bashrc.
 
 function crabEncrypt() {
     cd /Users/Shared/Documents/ || return 1
@@ -264,7 +244,6 @@ function crabEncrypt() {
 alias crabEncrypt="crabEncrypt"
 
 #Process-------------------------------------------------------------
-alias proc="ps -aux"
 alias kil="kill %%"
 
 function killport() {
@@ -286,69 +265,6 @@ function killport() {
 #Shared
 alias ownfolder="sudo chown -R $(whoami):staff ."
 alias brewown="sudo chown -R $(whoami):admin /opt/homebrew"
-
-#Git-----------------------------------------------------------------
-alias gitstatus='repo_root=$(git rev-parse --show-toplevel 2>/dev/null); (git diff --numstat 2>/dev/null; git status --porcelain --untracked-files=all 2>/dev/null | grep '\''^??'\'' | while read -r line; do file="${line#?? }"; lines=$(wc -l < "$repo_root/$file" 2>/dev/null | xargs); echo "$lines 0 $file"; done) | awk '\''{total=$1+$2; printf "%6d %6d %6d %s\n", total, $1, $2, $3}'\'' | sort -rn | awk '\''{printf "%6d+ %6d- %s\n", $2, $3, $4}'\'''
-
-#Firebase---------------------------------------------------------------------------------
-alias femu='firebase emulators:start'
-alias tbw="(cd functions && npm run build:watch)"
-alias bufgen="buf dep update && buf lint && buf generate --include-imports --include-wkt"
-
-#Docker-----------------------------------------------------------------------------------
-alias drmi='docker image rm $(docker image ls -aq)'
-alias drmc='docker container rm -f $(docker container ps -aq)'
-alias drmv='docker volume rm $(docker volume ls -q)'
-
-alias dcu="docker-compose up --build"
-
-#Flutter & Deno & Node-----------------------------------------------------------------------------------
-
-alias sdkm='sdkmanager --sdk_root=$ANDROID_HOME'
-
-alias dartbr="dart run build_runner watch --delete-conflicting-outputs"
-alias splash="dart run flutter_native_splash:create"
-alias licon="dart run flutter_launcher_icons"
-
-function adbcon() {
-    # addr=`adb.exe shell netcfg | grep rmnet0 | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'`
-    addr=`adb shell ip addr | grep inet | grep wlan0 | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | grep -m 1 192`
-    echo $addr &&
-    adb connect $addr:5555 &&
-	adb devices -l
-}
-
-alias adev="adb devices"
-alias akill="adb kill-server"
-alias a5="adb tcpip 5555"
-alias aaa="a5 && adbcon"
-
-alias gbuild="./gradlew build"
-alias ginstall="./gradlew installDebug"
-alias gclean="./gradlew clean"
-
-#Ios----------------------------------------------------------------------------------------
-
-alias ipod="cd ios && rm -rf Pods Podfile.lock && pod deintegrate && pod install && cd .."
-
-alias ilist="xcodebuild -list"
-
-alias idevices="xcrun simctl list devices"
-alias idevicetypes="xcrun simctl list devicetypes"
-alias ishutdown="xcrun simctl shutdown iPhone_17_Pro"
-alias ierase="xcrun simctl erase iPhone_17_Pro"
-alias idelete="xcrun simctl delete iPhone_17_Pro"
-
-alias icreate="xcrun simctl create iPhone_17_Pro iPhone 17 Pro"
-alias iboot="xcrun simctl boot iPhone_17_Pro"
-
-alias ibuild="xcodebuild -scheme swiftales -destination 'platform=iOS Simulator,name=iPhone_17_Pro' build"
-
-alias imac="xcodebuild -scheme swiftales -destination 'platform=macOS' build"
-
-alias iinstall="xcrun simctl install 'iPhone_17_Pro' '/Users/a24/Library/Developer/Xcode/DerivedData/swiftales-dfblcdpqkauavvayuxpfokhuykaf/Build/Products/Debug-iphonesimulator/swiftales.app'"
-
-alias ilaunch="xcrun simctl launch 'iPhone_17_Pro' run.shark.swiftales"
 
 #Code Analysis-----------------------------------------------------------------------------
 function list_directories_recursive() {
@@ -412,7 +328,7 @@ function psupdate(){
                 uptodate="🦋"
             fi
         fi
-        branch=$(git branch 2>/dev/null | grep '^*' | colrm 1 2)
+        branch=$(git symbolic-ref --short -q HEAD 2>/dev/null)
         modified=$(git diff --shortstat 2>/dev/null | awk '{print $1" +"$4" -"$6""}')
         untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | xargs)
 
@@ -423,6 +339,9 @@ function psupdate(){
 }
 # Update PS1 using PROMPT_COMMAND (safer than trap DEBUG)
 PROMPT_COMMAND=psupdate
+
+#Git-----------------------------------------------------------------
+alias gitstatus='repo_root=$(git rev-parse --show-toplevel 2>/dev/null); (git diff --numstat 2>/dev/null; git status --porcelain --untracked-files=all 2>/dev/null | grep '\''^??'\'' | while read -r line; do file="${line#?? }"; lines=$(wc -l < "$repo_root/$file" 2>/dev/null | xargs); echo "$lines 0 $file"; done) | awk '\''{total=$1+$2; printf "%6d %6d %6d %s\n", total, $1, $2, $3}'\'' | sort -rn | awk '\''{printf "%6d+ %6d- %s\n", $2, $3, $4}'\'''
 
 # --- git identity / remote summary for the CURRENT repo ---
 gitwho() {
